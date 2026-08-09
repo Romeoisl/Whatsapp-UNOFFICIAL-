@@ -1,0 +1,68 @@
+{
+  "name": "liquid-whatsapp",
+  "version": "2.2.2",
+  "description": "Liquid WhatsApp desktop client for macOS Catalina and Intel Macs \u2014 v2.2.2 Liquid Glass with FFmpeg voice notes and Catalina Intel packaging",
+  "main": "main.js",
+  "author": "Liquid",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac dmg zip --x64",
+    "check": "node --check main.js && node --check preload.js && node --check backend/core.js",
+    "build:catalina": "npm run check && electron-builder --mac dmg zip --x64",
+    "build:app": "npm run check && electron-builder --mac dir --x64"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "6.7.16",
+    "pino": "^9.0.0",
+    "ffmpeg-static": "5.2.0"
+  },
+  "devDependencies": {
+    "electron": "32.3.3",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.liquid.whatsapp",
+    "productName": "Liquid WhatsApp",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "backend/**",
+      "renderer/**",
+      "package.json",
+      "README.md"
+    ],
+    "mac": {
+      "category": "public.app-category.social-networking",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "minimumSystemVersion": "10.15.0"
+    },
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ],
+    "artifactName": "Liquid-WhatsApp-${version}-${arch}.${ext}",
+    "dmg": {
+      "title": "Liquid WhatsApp",
+      "artifactName": "Liquid-WhatsApp-${version}-Catalina-Intel.dmg"
+    },
+    "zip": {
+      "artifactName": "Liquid-WhatsApp-${version}-Catalina-Intel.zip"
+    }
+  }
+}
