@@ -7,9 +7,9 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --mac dmg zip --x64",
+    "dist": "electron-builder --mac dmg zip --x64 --publish never",
     "check": "node --check main.js && node --check preload.js && node --check backend/core.js",
-    "build:catalina": "npm run check && electron-builder --mac dmg zip --x64",
+    "build:catalina": "npm run check && electron-builder --mac dmg zip --x64 --publish never",
     "build:app": "npm run check && electron-builder --mac dir --x64"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
   "build": {
     "appId": "com.liquid.whatsapp",
     "productName": "Liquid WhatsApp",
+    "icon": "build/icon.png",
     "directories": {
       "output": "dist"
     },
