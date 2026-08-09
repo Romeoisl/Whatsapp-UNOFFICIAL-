@@ -1,4 +1,4 @@
-# Liquid WhatsApp 2.1
+# Liquid WhatsApp 2.2
 
 Liquid WhatsApp is an unofficial Electron desktop client using the WhatsApp protocol through Baileys. It targets macOS Catalina and Intel Macs.
 
@@ -54,18 +54,14 @@ This release adds a Tahoe/iOS 26-inspired glass visual layer: translucent panels
 
 Voice recordings made by Electron are normalized with the bundled `ffmpeg-static` binary before upload. The app converts browser WebM/Opus recordings to OGG/Opus (`audio/ogg; codecs=opus`) and sends them as WhatsApp push-to-talk audio (`ptt: true`).
 
-Install dependencies before running or building:
+## DOWNLOAD
+ [DOWNLOAD 2.2.2-Latest](https://github.com/Romeoisl/Whatsapp-UNOFFICIAL-/actions/runs/31340276420/artifacts/9045630094)
 
-```bash
-npm install
-npm run check
-npm start
-```
 
-For Intel Catalina packaging:
+ *Notes*: The download will use .zip format then when installed, unzip it and you will see a .dmg file, click it and follow the prompts
 
-```bash
-npm run dist
-```
-
-The electron-builder configuration unpacks the FFmpeg binary so it can execute outside the ASAR archive.
+-------------------------------
+ Contibution to this project, Vip and well recognised funds contributor or Award Me for this project. kindly contact me Via:
+- [Telegram](t.me/@geraldkat)
+- [Whatsapp](wa.me/9010758061)
+- [Facebook]()
