@@ -1,9 +1,9 @@
 {
   "name": "liquid-whatsapp",
   "version": "2.2.2",
-  "description": "Liquid WhatsApp desktop client for macOS Catalina and Intel Macs \u2014 v2.2.2 Liquid Glass with FFmpeg voice notes and Catalina Intel packaging",
+  "description": "Liquid WhatsApp desktop client for macOS Catalina and Intel Macs — v2.2.2 Liquid Glass with FFmpeg voice notes and Catalina Intel packaging",
   "main": "main.js",
-  "author": "Liquid",
+  "author": "Gerald(Mateo DEV)",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
@@ -60,9 +60,6 @@
     "dmg": {
       "title": "Liquid WhatsApp",
       "artifactName": "Liquid-WhatsApp-${version}-Catalina-Intel.dmg"
-    },
-    "zip": {
-      "artifactName": "Liquid-WhatsApp-${version}-Catalina-Intel.zip"
     }
   }
 }
