@@ -1,0 +1,45 @@
+name: Build Liquid WhatsApp DMG
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-dmg:
+    name: Build Catalina Intel DMG
+    runs-on: macos-15-intel
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check project
+        run: npm run check
+
+      - name: Build Catalina Intel DMG
+        run: npm run build:catalina
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: Liquid-WhatsApp-Catalina-Intel-DMG
+          path: dist/*.dmg
+          if-no-files-found: error
+
+      - name: Upload ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Liquid-WhatsApp-Catalina-Intel-ZIP
+          path: dist/*.zip
+          if-no-files-found: error
