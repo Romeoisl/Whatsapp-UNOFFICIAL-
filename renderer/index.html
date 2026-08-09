@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com">
+<title>Liquid WhatsApp</title>
+<link rel="stylesheet" href="css/glass.css">
+<link rel="stylesheet" href="css/extras.css">
+</head>
+<body>
+
+<!-- Liquid Glass Incoming Call Banner Overlay Window -->
+<div id="liquidCallBanner" class="liquid-banner-hidden">
+  <div class="liquid-banner-avatar">
+    <span id="callAvatarInitial">W</span>
+  </div>
+  <div class="liquid-banner-info">
+    <div id="callContactName">Incoming Request...</div>
+    <div id="callBadgeType">Liquid Secure Voice Connection</div>
+  </div>
+  <div class="liquid-banner-actions">
+    <button class="liquid-btn-accept" id="btnBannerAccept">Accept</button>
+    <button class="liquid-btn-decline" id="btnBannerDecline">Decline</button>
+  </div>
+</div>
+
+<div id="login-view" class="view">
+  <div class="glass-panel login-panel">
+    <div class="logo">L</div>
+    <h1>Liquid WhatsApp</h1>
+    <p class="sub">macOS Catalina edition · custom features</p>
+    <div id="login-form">
+      <input id="login-number" type="tel" placeholder="Your number with country code, e.g. 14155552671" autocomplete="off" spellcheck="false">
+      <button id="login-btn" class="btn primary" style="margin-top:12px">Get pairing code</button>
+      <p class="hint">You'll get an 8-character code. On your phone:<br>
+        <b>WhatsApp → Settings → Linked devices → Link a device → "Link with phone number instead"</b></p>
+      <div id="pair-code" class="pair-code hidden">
+        <div class="code-label">Enter this code on your phone</div>
+        <div id="pair-code-value" class="code-value">—</div>
+      </div>
+      <div id="login-status" class="status-line"></div>
+    </div>
+  </div>
+</div>
+
+<div id="app-view" class="view hidden">
+  <aside id="sidebar">
+    <header id="sidebar-header">
+      <span id="me-avatar" class="avatar">?</span>
+      <div class="me-info">
+        <div id="me-name">Me</div>
+        <div id="conn-status" class="conn"><span class="dot"></span> Connecting...</div>
+      </div>
+      <button id="btn-new-chat" class="icon-btn" title="New chat">➕</button>
+      <button id="btn-status" class="icon-btn" title="Post status">📢</button>
+      <button id="btn-starred" class="icon-btn" title="Starred messages">⭐</button>
+      <button id="btn-settings" class="icon-btn" title="Settings">⚙️</button>
+    </header>
+    <div id="search-wrap"><input id="search" placeholder="Search chats" spellcheck="false"></div>
+    <div id="filter-tabs" class="tab-bar">
+      <button class="tab active" data-filter="all">All</button>
+      <button class="tab" data-filter="unread">Unread</button>
+      <button class="tab" data-filter="groups">Groups</button>
+      <button class="tab" data-filter="archived">Archived</button>
+    </div>
+    <nav id="chat-list"></nav>
+    <footer id="sidebar-footer">
+      <span id="outbox-status" class="hint" style="margin:0">Session saved on this Mac</span>
+      <button id="btn-logout" class="link-btn">Log out</button>
+    </footer>
+  </aside>
+
+  <main id="chat-area">
+    <div id="empty-state">
+      <div class="glass-panel empty-inner">
+        <div class="big-msg">Select a chat</div>
+        <p>or start a new one</p>
+        <button id="btn-new-chat-empty" class="btn primary">New chat</button>
+      </div>
+    </div>
+    <div id="chat-panel" class="hidden">
+      <header id="chat-header">
+        <span id="chat-avatar" class="avatar">?</span>
+        <div class="chat-title">
+          <div id="chat-name">—</div>
+          <div id="chat-presence" class="presence">offline</div>
+        </div>
+        
+        <!-- Header calling options integrated with vector inline SVGs -->
+        <div class="header-actions">
+          <button class="liquid-action-icon-btn" id="headerVoiceCallBtn" title="Start Voice Call">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M18.2 15.6l-2.4-1.2c-.4-.2-.9-.1-1.2.2l-1.4 1.4c-2.4-1.2-4.4-3.2-5.6-5.6l1.4-1.4c.3-.3.4-.8.2-1.2L8 5.4c-.2-.4-.7-.6-1.1-.5l-3 .6c-.5.1-.9.5-.9 1 0 9.7 7.9 17.5 17.5 17.5.5 0 .9-.4 1-.9l.6-3.1c.1-.5-.1-1-.5-1.2z"/>
+            </svg>
+          </button>
+          <button class="liquid-action-icon-btn" id="headerVideoCallBtn" title="Start Video Call">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+            </svg>
+          </button>
+          <button id="btn-mention-all" class="icon-btn hidden" title="@all in group">@all</button>
+          <button id="btn-poll" class="icon-btn" title="Create poll">📊</button>
+          <button id="btn-viewonce" class="icon-btn" title="Send view-once message">👁️‍🗨️</button>
+          <button id="btn-disappear" class="icon-btn" title="Disappearing timer">⏰</button>
+          <button id="btn-ai" class="icon-btn" title="AI dock">🧠</button>
+          <button id="btn-profile" class="icon-btn" title="Contact / group info">👤</button>
+          <button id="btn-chat-search" class="icon-btn" title="Search messages">🔎</button>
+          <button id="btn-gallery" class="icon-btn" title="Media gallery">▦</button>
+          <button id="btn-media" class="icon-btn" title="Attach media or document">🖼️</button>
+        </div>
+      </header>
+      <div id="messages-wrap"><div id="messages"></div></div>
+      <div id="quote-preview" class="quote-preview hidden">
+        <div><strong>Replying to</strong><div id="quote-preview-text"></div></div>
+        <button id="quote-cancel" class="icon-btn" title="Cancel reply">✕</button>
+      </div>
+      <div id="drop-hint" class="drop-hint hidden">Drop files to send</div>
+      <footer id="composer">
+        <button id="btn-voice" class="icon-btn voice-btn" title="Record voice message" aria-label="Record voice message">🎙️</button>
+        <div id="voice-recorder" class="voice-recorder hidden">
+          <button id="voice-cancel" class="icon-btn" title="Cancel recording">✕</button>
+          <span class="voice-dot"></span><span id="voice-timer">0:00</span>
+          <div class="voice-level"><span id="voice-level-fill"></span></div>
+          <button id="voice-send" class="btn primary" title="Send voice message">Send</button>
+        </div>
+        <input id="composer-input" placeholder="Type a message" autocomplete="off" spellcheck="true">
+        <button id="btn-send" class="btn primary">Send</button>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<div id="modal-overlay" class="hidden">
+  <div class="glass-panel modal" id="modal-shell">
+    <button id="modal-close" class="modal-x">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<template id="tpl-newchat">
+  <h2>New chat</h2>
+  <input id="nc-number" type="tel" placeholder="Phone number with country code, e.g. 14155552671" spellcheck="false">
+  <label class="row" style="margin-top:10px">
+    <span style="flex:1">Broadcast to multiple numbers (comma-separated)</span>
+    <input id="nc-broadcast" type="checkbox">
+  </label>
+  <button id="nc-go" class="btn primary" style="width:100%;margin-top:12px">Open chat</button>
+  <div class="divider">or pick a contact</div>
+  <div id="nc-contacts" class="contact-list"></div>
+</template>
+
+<template id="tpl-poll">
+  <h2>Create poll</h2>
+  <input id="poll-name" placeholder="Poll question" spellcheck="false">
+  <textarea id="poll-options" class="textarea" placeholder="One option per line (up to 12)"></textarea>
+  <button id="poll-go" class="btn primary" style="width:100%;margin-top:12px">Send poll</button>
+</template>
+
+<template id="tpl-viewonce">
+  <h2>View-once message</h2>
+  <p class="hint">The recipient can open this message only once, then it disappears.</p>
+  <textarea id="vo-text" class="textarea" placeholder="Message text"></textarea>
+  <button id="vo-go" class="btn primary" style="width:100%;margin-top:12px">Send</button>
+</template>
+
+<template id="tpl-status">
+  <h2>Post status</h2>
+  <textarea id="st-text" class="textarea" placeholder="Status text..."></textarea>
+  <div class="row" style="margin-top:10px">
+    <button id="st-go" class="btn primary" style="flex:1">Post text</button>
+    <button id="st-img" class="btn ghost" style="flex:1">Post image...</button>
+  </div>
+</template>
+
+<template id="tpl-starred">
+  <h2>Starred messages</h2>
+  <div id="starred-list" class="star-list"></div>
+</template>
+
+<template id="tpl-disappear">
+  <h2>Disappearing messages</h2>
+  <p class="hint">New messages in this chat will disappear after the selected time.</p>
+  <select id="disp-select" class="select">
+    <option value="0">Off</option>
+    <option value="86400">24 hours</option>
+    <option value="604800">7 days</option>
+    <option value="7776000">90 days</option>
+  </select>
+  <button id="disp-go" class="btn primary" style="width:100%;margin-top:12px">Apply</button>
+</template>
+
+<template id="tpl-ai">
+  <h2>AI dock</h2>
+  <p class="hint">Bring your own API key (OpenAI / Anthropic / Gemini) — set it in Settings → AI.</p>
+  <textarea id="ai-prompt" class="textarea" placeholder="Ask anything, or summarize this chat..."></textarea>
+  <div class="row" style="margin-top:10px">
+    <button id="ai-ask" class="btn primary" style="flex:1">Ask</button>
+    <button id="ai-summarize" class="btn ghost" style="flex:1">Summarize chat</button>
+    <button id="ai-image" class="btn ghost" style="flex:1">Generate image</button>
+  </div>
+  <div id="ai-out" class="ai-out"></div>
+</template>
+
+
+<template id="tpl-search">
+  <h2>Search messages</h2>
+  <input id="msg-search-input" placeholder="Search this chat…" spellcheck="false">
+  <div id="msg-search-results" class="search-results"></div>
+</template>
+
+<template id="tpl-profile">
+  <div id="profile-content"></div>
+</template>
+
+<template id="tpl-gallery">
+  <h2>Media, links & documents</h2>
+  <div id="gallery-grid" class="gallery-grid"></div>
+</template>
+
+<template id="tpl-group">
+  <h2>Group management</h2>
+  <input id="group-subject" placeholder="Group name">
+  <button id="group-subject-save" class="btn primary" style="width:100%;margin-top:10px">Rename group</button>
+  <div class="divider">Participants</div>
+  <div id="group-members" class="contact-list"></div>
+  <div class="row" style="margin-top:10px">
+    <button id="group-add" class="btn ghost" style="flex:1">Add</button>
+    <button id="group-remove" class="btn ghost" style="flex:1">Remove</button>
+    <button id="group-promote" class="btn ghost" style="flex:1">Promote</button>
+  </div>
+  <button id="group-leave" class="btn danger" style="width:100%;margin-top:10px">Leave group</button>
+</template>
+
+<template id="tpl-settings">
+  <div class="settings-layout">
+    <aside class="settings-nav">
+      <div class="settings-title">Settings</div>
+      <button class="settings-tab active" data-section="profile">👤 Profile</button>
+      <button class="settings-tab" data-section="account">🔐 Account</button>
+      <button class="settings-tab" data-section="privacy">🛡️ Privacy</button>
+      <button class="settings-tab" data-section="chats">💬 Chats</button>
+      <button class="settings-tab" data-section="notifications">🔔 Notifications</button>
+      <button class="settings-tab" data-section="storage">💾 Storage & data</button>
+      <button class="settings-tab" data-section="shortcuts">⌨️ Shortcuts</button>
+      <button class="settings-tab" data-section="ai">🧠 AI</button>
+      <button class="settings-tab" data-section="about">ℹ️ About</button>
+    </aside>
+    <section class="settings-body">
+      <div class="settings-section active" data-section-panel="profile">
+        <h2>Profile</h2>
+        <div class="settings-profile-card">
+          <span id="settings-avatar" class="avatar settings-avatar">?</span>
+          <div><strong id="settings-name">Me</strong><div id="settings-number" class="hint">—</div></div>
+        </div>
+        <p class="hint">Your WhatsApp profile is managed through your account. This client displays the profile information available from WhatsApp.</p>
+      </div>
+
+      <div class="settings-section" data-section-panel="account">
+        <h2>Account</h2>
+        <div class="settings-card"><strong>Linked session</strong><p class="hint">Your encrypted WhatsApp session is stored locally on this Mac. Use Log out from the main window to unlink this client.</p></div>
+        <button id="settings-logout" class="btn danger">Log out of Liquid WhatsApp</button>
+      </div>
+
+      <div class="settings-section" data-section-panel="privacy">
+        <h2>Privacy</h2>
+        <div class="grid2">
+          <label>Last seen <select id="pr-lastseen" class="select"><option value="all">Everyone</option><option value="contacts">My contacts</option><option value="contact_blacklist">Contacts except...</option><option value="none">Nobody</option></select></label>
+          <label>Online <select id="pr-online" class="select"><option value="all">Everyone</option><option value="contacts">My contacts</option><option value="contact_blacklist">Contacts except...</option><option value="none">Nobody</option></select></label>
+          <label>Read receipts <select id="pr-read" class="select"><option value="all">Everyone</option><option value="contacts">My contacts</option><option value="contact_blacklist">Contacts except...</option><option value="none">Nobody</option></select></label>
+          <label>Profile photo <select id="pr-pic" class="select"><option value="all">Everyone</option><option value="contacts">My contacts</option><option value="contact_blacklist">Contacts except...</option><option value="none">Nobody</option></select></label>
+          <label>Status <select id="pr-status" class="select"><option value="all">Everyone</option><option value="contacts">My contacts</option><option value="contact_blacklist">Contacts except...</option><option value="none">Nobody</option></select></label>
+          <label>Group adds <select id="pr-groups" class="select"><option value="all">Everyone</option><option value="contacts">My contacts</option><option value="contact_blacklist">Contacts except...</option><option value="none">Nobody</option></select></label>
+        </div>
+        <p class="hint settings-note">Privacy controls only change settings supported by WhatsApp and this unofficial client. They do not bypass WhatsApp's privacy rules.</p>
+      </div>
+
+      <div class="settings-section" data-section-panel="chats">
+        <h2>Chats</h2>
+        <label>Appearance <select id="set-theme" class="select"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option><option value="liquid">Liquid Glass</option></select></label>
+        <label class="row"><span>Show typing indicator to contacts</span><input id="set-typing" type="checkbox"></label>
+        <label class="row"><span>Reduce animations</span><input id="set-reduce-motion" type="checkbox"></label>
+        <div class="settings-card"><strong>Message actions</strong><p class="hint">Use ⌘F to search messages in the current chat and ⌘K to find a chat quickly.</p></div>
+      </div>
+
+      <div class="settings-section" data-section-panel="notifications">
+        <h2>Notifications</h2>
+        <label class="row"><span>Desktop notifications</span><input id="set-notif" type="checkbox"></label>
+        <label class="row"><span>Notification sounds</span><input id="set-sound" type="checkbox"></label>
+        <label class="row"><span>Show message previews</span><input id="set-preview" type="checkbox"></label>
+        <div class="settings-card"><strong>Per-chat controls</strong><p class="hint">Use Mute on a chat to silence notifications for that conversation.</p></div>
+      </div>
+
+      <div class="settings-section" data-section-panel="storage">
+        <h2>Storage & data</h2>
+        <div id="local-db-info" class="settings-card">Local message database</div>
+        <label class="row"><span>Automatic local backup</span><input id="set-backup" type="checkbox"></label>
+        <div class="row"><button id="backup-export" class="btn ghost">Export backup…</button></div>
+        <p class="hint">Backups contain local app data. WhatsApp account credentials are not exported.</p>
+      </div>
+
+      <div class="settings-section" data-section-panel="shortcuts">
+        <h2>Keyboard shortcuts</h2>
+        <div class="shortcut-row"><span>Search chats</span><kbd>⌘ K</kbd></div>
+        <div class="shortcut-row"><span>Search messages</span><kbd>⌘ F</kbd></div>
+        <div class="shortcut-row"><span>Close dialog / cancel</span><kbd>Esc</kbd></div>
+        <div class="shortcut-row"><span>Send message</span><kbd>Enter</kbd></div>
+      </div>
+
+      <div class="settings-section" data-section-panel="ai">
+        <h2>AI</h2>
+        <p class="hint">Bring your own API key. Keys are stored locally in your app settings.</p>
+        <div class="row"><select id="ai-provider" class="select"><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="gemini">Google Gemini</option></select><input id="ai-model" placeholder="Model (default per provider)" style="flex:2"></div>
+        <input id="ai-key" type="password" placeholder="API key" style="margin-top:8px">
+        <button id="ai-save" class="btn primary" style="width:100%;margin-top:12px">Save AI settings</button>
+      </div>
+
+      <div class="settings-section" data-section-panel="about">
+        <h2>About Liquid WhatsApp</h2>
+        <div class="about-brand"><div class="logo small-logo">L</div><div><strong>Liquid WhatsApp</strong><div class="hint">Unofficial desktop client for older Macs</div></div></div>
+        <div class="about-card">
+          <h3>Made by Gerald (Mateo devs)</h3>
+          <p>We look forward to adding more features and making more useful utilities for older Macs.</p>
+        </div>
+        <div class="about-card">
+          <h3>WhatsApp credits</h3>
+          <p>WhatsApp and the WhatsApp name, logo and related marks are trademarks of Meta Platforms, Inc. Liquid WhatsApp is an independent, unofficial client and is not affiliated with or endorsed by Meta.</p>
+          <p class="hint">This project uses the open-source Baileys library to communicate with WhatsApp's service.</p>
+        </div>
+        <div class="about-meta">Liquid WhatsApp v2.1 · macOS Catalina / Intel · Unofficial</div>
+      </div>
+
+      <div class="settings-actions"><button id="settings-save" class="btn primary">Save settings</button></div>
+    </section>
+  </div>
+</template>
+
+<div id="ctx-menu" class="ctx-menu hidden"></div>
+
+<div id="viewer" class="hidden">
+  <div class="viewer-backdrop"></div>
+  <div class="viewer-card">
+    <button id="viewer-close" class="modal-x">✕</button>
+    <img id="viewer-img" alt="">
+    <div id="viewer-caption"></div>
+  </div>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+(function () {
+  const KEY = 'liquid-glass-preference';
+  function apply(v) {
+    document.body.classList.remove('liquid-clear','liquid-tinted','liquid-performance');
+    if (v === 'clear') document.body.classList.add('liquid-clear');
+    if (v === 'tinted') document.body.classList.add('liquid-tinted');
+    if (v === 'performance') document.body.classList.add('liquid-performance');
+    try { localStorage.setItem(KEY, v); } catch (_) {}
+  }
+  try { apply(localStorage.getItem(KEY) || 'tinted'); } catch (_) {}
+  window.liquidGlass = { apply };
+})();
+</script>
+</body>
+</html>
