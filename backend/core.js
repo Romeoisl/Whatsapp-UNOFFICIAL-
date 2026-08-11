@@ -867,6 +867,7 @@ class WhatsAppCore extends EventEmitter {
 
   getSettings() { return this.settings }
   getStarred() { return this.starred }
+  getSchedules() { return this.schedules }
 
   async setSettings(patch) {
     this.settings = { ...this.settings, ...(patch || {}) }
